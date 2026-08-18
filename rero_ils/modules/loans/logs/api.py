@@ -14,6 +14,14 @@ from ...patrons.api import Patron, current_librarian
 class LoanOperationLogsSearch(OperationLogsSearch):
     """RecordsSearch for LoanOperationLogs."""
 
+    def get_logs_by_loan_pid(self, loan_pid):
+        """Get all operation logs associated with a loan PID.
+
+        :param loan_pid: Loan PID.
+        :returns: List of logs.
+        """
+        return list(self.filter("term", loan__pid=loan_pid).scan())
+
     def get_logs_by_trigger(self, triggers, date_range=None):
         """Get the operation logs base es search.
 
@@ -96,7 +104,7 @@ class LoanOperationLog(OperationLog, SpecificOperationLog):
 
         :param loan_pid: Loan PID.
         """
-        for log in OperationLogsSearch().get_logs_by_record_pid(loan_pid):
+        for log in LoanOperationLogsSearch().get_logs_by_loan_pid(loan_pid):
             record = log.to_dict()
             record["loan"]["patron"]["name"] = "anonymized"
             record["loan"]["patron"]["pid"] = "anonymized"

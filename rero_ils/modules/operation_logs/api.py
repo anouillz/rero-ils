@@ -40,14 +40,6 @@ class OperationLogsSearch(IlsRecordsSearch):
         for hit in query.scan():
             yield hit.to_dict()
 
-    def get_logs_by_record_pid(self, pid):
-        """Get all logs for a given record PID.
-
-        :param str pid: record PID.
-        :returns: List of logs.
-        """
-        return list(self.filter("bool", must={"exists": {"field": "loan"}}).filter("term", record__value=pid).scan())
-
 
 def operation_log_id_fetcher(record_uuid, data):
     """Fetch an Organisation record's identifier.

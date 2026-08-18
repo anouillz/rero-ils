@@ -9,6 +9,7 @@ from copy import deepcopy
 from invenio_jsonschemas import current_jsonschemas
 
 from rero_ils.modules.loans.logs.api import LoanOperationLog, LoanOperationLogsSearch
+from rero_ils.modules.notifications.models import NotificationType
 from rero_ils.modules.patrons.api import Patron
 from tests.utils import login_user_for_view
 
@@ -78,17 +79,18 @@ def test_anonymize_logs(item2_on_loan_martigny_patron_and_loan_on_loan):
 
     LoanOperationLogsSearch.flush_and_refresh()
 
-    logs = LoanOperationLogsSearch().get_logs_by_record_pid(loan["pid"])
+    logs = LoanOperationLogsSearch().get_logs_by_loan_pid(loan["pid"])
     assert len(logs) == 3
     for log in logs:
         if log["record"]["type"] == "notif":
-            assert log["notification"]["recipients"] == ["reroilstest+martigny+atdesk@gmail.com"]
+            assert log["notification"]["type"] == NotificationType.REQUEST
+            assert log["notification"]["recipients"] == ["reroilstest+martigny+request@gmail.com"]
         assert log["loan"]["patron"]["pid"] == patron["pid"]
         assert log["loan"]["patron"]["name"] == "Roduit, Louis"
 
     loan.anonymize(dbcommit=True, reindex=True)
 
-    logs = LoanOperationLogsSearch().get_logs_by_record_pid(loan["pid"])
+    logs = LoanOperationLogsSearch().get_logs_by_loan_pid(loan["pid"])
     assert len(logs) == 3
     for log in logs:
         log = log.to_dict()
