@@ -2215,6 +2215,7 @@ RECORDS_REST_FACETS = dict(
                 terms=dict(field="fiction_statement", size=DOCUMENTS_AGGREGATION_SIZE)
             ),
         ),
+        
         filters={
             _("online"): or_terms_filter_by_criteria(
                 {
